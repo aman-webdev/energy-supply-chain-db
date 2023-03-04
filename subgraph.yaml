@@ -1,0 +1,39 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: EnergySupplyChain
+    network: mumbai
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: EnergySupplyChain
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - DistributorAdded
+        - EnergyAddedByPowerPlant
+        - EnergyBoughtByDistributor
+        - EnergyBoughtBySubstation
+        - PowerPlantAdded
+        - SubstationAdded
+      abis:
+        - name: EnergySupplyChain
+          file: ./abis/EnergySupplyChain.json
+      eventHandlers:
+        - event: DistributorAdded(indexed uint256,indexed uint256,indexed address)
+          handler: handleDistributorAdded
+        - event: EnergyAddedByPowerPlant(indexed uint256,uint256,uint256)
+          handler: handleEnergyAddedByPowerPlant
+        - event: EnergyBoughtByDistributor(indexed uint256,uint256,uint256)
+          handler: handleEnergyBoughtByDistributor
+        - event: EnergyBoughtBySubstation(indexed uint256,uint256,uint256)
+          handler: handleEnergyBoughtBySubstation
+        - event: PowerPlantAdded(indexed uint256,indexed address)
+          handler: handlePowerPlantAdded
+        - event: SubstationAdded(indexed uint256,indexed uint256,indexed address)
+          handler: handleSubstationAdded
+      file: ./src/energy-supply-chain.ts

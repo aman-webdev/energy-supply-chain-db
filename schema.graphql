@@ -1,0 +1,6 @@
+type ExampleEntity @entity {
+  id: Bytes!
+  count: BigInt!
+  distributorId: BigInt! # uint256
+  substationId: BigInt! # uint256
+}
