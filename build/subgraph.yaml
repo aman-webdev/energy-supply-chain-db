@@ -1,6 +1,6 @@
 specVersion: 0.0.5
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: EnergySupplyChain
@@ -22,7 +22,7 @@ dataSources:
         - SubstationAdded
       abis:
         - name: EnergySupplyChain
-          file: ./abis/EnergySupplyChain.json
+          file: EnergySupplyChain\abis\EnergySupplyChain.json
       eventHandlers:
         - event: DistributorAdded(indexed uint256,indexed uint256,indexed address)
           handler: handleDistributorAdded
@@ -36,4 +36,4 @@ dataSources:
           handler: handlePowerPlantAdded
         - event: SubstationAdded(indexed uint256,indexed uint256,indexed address)
           handler: handleSubstationAdded
-      file: ./src/energy-supply-chain.ts
+      file: EnergySupplyChain\EnergySupplyChain.wasm
