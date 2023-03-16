@@ -6,9 +6,9 @@ dataSources:
     name: EnergySupplyChain
     network: mumbai
     source:
-      address: "0x0dc27424480c9b67dd90122761fcd72d0bd75be2"
+      address: "0x81b74b18Fa8D079A0712C3db774D3Ee44BCE3FfE"
       abi: EnergySupplyChain
-      startBlock: 32696197
+      startBlock: 33092106
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -24,8 +24,10 @@ dataSources:
         - name: EnergySupplyChain
           file: ./abis/EnergySupplyChain.json
       eventHandlers:
-        - event: DistributorAdded(indexed uint256,indexed uint256,indexed address)
+        - event: DistributorAdded(indexed uint256,indexed address,uint256)
           handler: handleDistributorAdded
+        - event: DistributorConnectedToSubstation(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleDistributorConnectedToSubstation
         - event: EnergyAddedByPowerPlant(indexed uint256,uint256,uint256)
           handler: handleEnergyAddedByPowerPlant
         - event: EnergyBoughtByDistributor(indexed uint256,uint256,uint256)
@@ -34,6 +36,8 @@ dataSources:
           handler: handleEnergyBoughtBySubstation
         - event: PowerPlantAdded(indexed uint256,indexed address)
           handler: handlePowerPlantAdded
-        - event: SubstationAdded(indexed uint256,indexed uint256,indexed address)
+        - event: SubstationAdded(indexed uint256,indexed address,uint256)
           handler: handleSubstationAdded
+        - event: SubstationConnectedToPowerPlant(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleSubstationConnectedToPowerPlant
       file: ./src/energy-supply-chain.ts

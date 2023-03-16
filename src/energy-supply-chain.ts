@@ -1,4 +1,4 @@
-import { Powerplant, DailyEnergy, Substation } from "./../generated/schema";
+import { Powerplant, DailyEnergy, Substation,Distributor } from "./../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 import {
   EnergySupplyChain,
@@ -8,55 +8,26 @@ import {
   EnergyBoughtBySubstation,
   PowerPlantAdded,
   SubstationAdded,
+  DistributorConnectedToSubstation,SubstationConnectedToPowerPlant
 } from "../generated/EnergySupplyChain/EnergySupplyChain";
 
 export function handleDistributorAdded(event: DistributorAdded): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  // let entity = ExampleEntity.load(event.transaction.from)
-  // // Entities only exist after they have been saved to the store;
-  // // `null` checks allow to create entities on demand
-  // if (!entity) {
-  //   entity = new ExampleEntity(event.transaction.from)
-  //   // Entity fields can be set using simple assignments
-  //   entity.count = BigInt.fromI32(0)
-  // }
-  // // BigInt and BigDecimal math are supported
-  // entity.count = entity.count + BigInt.fromI32(1)
-  // // Entity fields can be set based on event parameters
-  // entity.distributorId = event.params.distributorId
-  // entity.substationId = event.params.substationId
-  // // Entities can be written to the store with `.save()`
-  // entity.save()
-  // // Note: If a handler doesn't require existing field values, it is faster
-  // // _not_ to load the entity from the store. Instead, create it fresh with
-  // // `new Entity(...)`, set the fields that should be updated and save the
-  // // entity back to the store. Fields that were not set or unset remain
-  // // unchanged, allowing for partial updates to be applied.
-  // // It is also possible to access smart contracts from mappings. For
-  // // example, the contract that has emitted the event can be connected to
-  // // with:
-  // //
-  // // let contract = Contract.bind(event.address)
-  // //
-  // // The following functions can then be called on this contract to access
-  // // state variables and other data:
-  // //
-  // // - contract.distributorAddressToIds(...)
-  // // - contract.distributors(...)
-  // // - contract.getDistributorById(...)
-  // // - contract.getDistributorEnergyBoguhtByDay(...)
-  // // - contract.getPowerPlantEnergyProducedByDay(...)
-  // // - contract.getPowerPlantEnergySoldByDay(...)
-  // // - contract.getPowerplantById(...)
-  // // - contract.getSubstationById(...)
-  // // - contract.getSubstationEnergyBoughtByDay(...)
-  // // - contract.getSubstationEnergySoldByDay(...)
-  // // - contract.getSubstationsOfPowerPlant(...)
-  // // - contract.powerPlants(...)
-  // // - contract.powerPlantsAddressToIds(...)
-  // // - contract.substations(...)
-  // // - contract.substationsAddressToIds(...)
+  let creator = event.params.owner;
+  let distributorTicker = event.params.distributorId;
+  let contract = EnergySupplyChain.bind(event.address);
+  let distributorFromContract = contract.getDistributorById(distributorTicker);
+
+  let entity = new Distributor(`Distributor-${distributorTicker}`);
+  entity.name = distributorFromContract.name;
+  entity.area = distributorFromContract.area;
+  entity.addedAt = event.block.timestamp;
+  entity.owner = creator;
+  entity.totalEnergyBought = distributorFromContract.totalEnergyBought;
+  entity.totalEnergySold = distributorFromContract.totalEnergySold;
+  entity.energyAvailableToBuy = event.params.energyAvailableToBuy;
+  entity.number = distributorTicker.toI32();
+  entity.addedAt = event.block.timestamp;
+  entity.save();
 }
 
 export function handleEnergyAddedByPowerPlant(
@@ -103,7 +74,81 @@ export function handleEnergyAddedByPowerPlant(
 
 export function handleEnergyBoughtByDistributor(
   event: EnergyBoughtByDistributor
-): void {}
+): void {
+  const distributorTicker = event.params.distributorId
+  const energyBought = event.params.energyBought
+  const distributorContract = EnergySupplyChain.bind(event.address)
+  const distributorInfo = distributorContract.getDistributorById(distributorTicker)
+  const substationInfo = distributorContract.getSubstationById(distributorInfo.substationId)
+  const distributorId = `Distributor-${distributorTicker}`
+  const distributor = Distributor.load(distributorId)
+  const substation = Substation.load(`Substation-${distributorInfo.substationId}`)
+  let currentTime = event.block.timestamp.toU64() / 86400;
+  const stringDate = new Date(currentTime * 86400 * 1000)
+    .toISOString()
+    .split("T")[0];
+   // check if the energy entity bought for today exists for distributor
+   let dailyEnergyBoughtByDistributor = DailyEnergy.load(`Distributor-${distributorTicker}-${stringDate}-Bought`)
+   if(!dailyEnergyBoughtByDistributor){
+    // if it doesnt exist create one entity for today
+    dailyEnergyBoughtByDistributor = new DailyEnergy(`Distributor-${distributorTicker}-${stringDate}-Bought`)
+    dailyEnergyBoughtByDistributor.amount = energyBought
+    dailyEnergyBoughtByDistributor.timestamp = event.block.timestamp
+    dailyEnergyBoughtByDistributor.date= stringDate
+    dailyEnergyBoughtByDistributor.type='Distributor'
+    dailyEnergyBoughtByDistributor.actionType='Bought'
+    dailyEnergyBoughtByDistributor.address = distributorInfo.distributorAddress
+    dailyEnergyBoughtByDistributor.userId = distributorTicker
+   }else{
+    // if exists just add the new amount to already exisiting energy bought
+    dailyEnergyBoughtByDistributor.amount = dailyEnergyBoughtByDistributor.amount.plus(energyBought)
+   }
+   dailyEnergyBoughtByDistributor.save()
+
+   // now we update the distributor to add this date and total energies
+   if(distributor){
+    distributor.totalEnergyBought = distributor.totalEnergyBought.plus(energyBought)
+    distributor.energyAvailableToBuy = distributor.energyAvailableToBuy.plus(energyBought)
+    let energiesBought = distributor.energiesBoughtByDate
+    if (!energiesBought) {
+      energiesBought = new Array<string>();
+    }
+    if(!energiesBought.includes(dailyEnergyBoughtByDistributor.id)){
+      energiesBought.push(dailyEnergyBoughtByDistributor.id)
+    }
+    log.info("Energies bought -> Distributor ------- : {}",[energiesBought.length.toString()])
+    distributor.energiesBoughtByDate=energiesBought
+    distributor.save();
+   }
+
+   // now update the substation with the energy sold amount
+
+   if(substation){
+    substation.totalEnergySold=substation.totalEnergySold.plus(energyBought)
+    substation.energyAvailableToBuy = substation.energyAvailableToBuy.minus(energyBought)
+    let dailyEnergySold = DailyEnergy.load(`Substation-${distributorInfo.substationId}-${stringDate}-Sold`)
+    if(!dailyEnergySold){
+      dailyEnergySold = new DailyEnergy(`Substation-${distributorInfo.substationId}-${stringDate}-Sold`)
+      dailyEnergySold.actionType="Sold"
+      dailyEnergySold.amount=energyBought
+      dailyEnergySold.date=stringDate
+      dailyEnergySold.timestamp=event.block.timestamp
+      dailyEnergySold.userId=distributorInfo.substationId
+      dailyEnergySold.type="Substation"
+      dailyEnergySold.address = substationInfo.substationAddress
+      let substationEnergiesSold = substation.energiesSoldByDate
+      if(!substationEnergiesSold) substationEnergiesSold = new Array<string>();
+      substationEnergiesSold.push(dailyEnergySold.id)
+      substation.energiesSoldByDate=substationEnergiesSold
+    }
+    else {
+      dailyEnergySold.amount = dailyEnergySold.amount.plus(energyBought)
+      
+    }
+    dailyEnergySold.save()
+    substation.save()
+   }
+}
 
 export function handleEnergyBoughtBySubstation(
   event: EnergyBoughtBySubstation
@@ -129,6 +174,7 @@ export function handleEnergyBoughtBySubstation(
     dailyEnergyBoughtBySubstation.timestamp = event.block.timestamp;
     dailyEnergyBoughtBySubstation.type = "Substation";
     dailyEnergyBoughtBySubstation.userId = substationTicker;
+    dailyEnergyBoughtBySubstation.actionType='Bought'
   }else{
     dailyEnergyBoughtBySubstation.amount=dailyEnergyBoughtBySubstation.amount.plus(energyBought)
   }
@@ -148,7 +194,10 @@ export function handleEnergyBoughtBySubstation(
     if (!energiesBought) {
       energiesBought = new Array<string>();
     }
-    energiesBought.push(dailyEnergyBoughtBySubstation.id)
+    if(!energiesBought.includes(dailyEnergyBoughtBySubstation.id)){
+      energiesBought.push(dailyEnergyBoughtBySubstation.id)
+    }
+    log.info("ENergies bought ------- : {}",[energiesBought.length.toString()])
     substation.energiesBoughtByDate=energiesBought
     substation.save();
   }
@@ -228,7 +277,6 @@ export function handlePowerPlantAdded(event: PowerPlantAdded): void {
 export function handleSubstationAdded(event: SubstationAdded): void {
   let creator = event.params.owner;
   let substationTicker = event.params.substationId;
-  let powerplantTicker = event.params.powerplantId;
   let contract = EnergySupplyChain.bind(event.address);
   let substationFromContract = contract.getSubstationById(substationTicker);
 
@@ -239,19 +287,79 @@ export function handleSubstationAdded(event: SubstationAdded): void {
   entity.owner = creator;
   entity.totalEnergyBought = substationFromContract.totalEnergyReceived;
   entity.totalEnergySold = substationFromContract.totalEnergySold;
-  entity.energyAvailableToBuy = substationFromContract.energyAvailableToBuy;
+  entity.energyAvailableToBuy = event.params.energyAvailableToBuy;
   entity.number = substationTicker.toI32();
   entity.addedAt = event.block.timestamp;
-  let powerplant = Powerplant.load(`Powerplant-${powerplantTicker}`);
-  if (powerplant) {
-    entity.powerplant = powerplant.id;
-    let powerplantSubstations = powerplant.substations;
-    if (!powerplantSubstations) {
-      powerplantSubstations = new Array<string>();
-    }
-    powerplantSubstations.push(entity.id);
-    powerplant.substations = powerplantSubstations;
-    powerplant.save();
-  }
   entity.save();
+}
+
+export function handleSubstationConnectedToPowerPlant(
+  event: SubstationConnectedToPowerPlant
+): void {
+  const substationId = event.params.substationId;
+  const powerplantId = event.params.powerPlantId;
+  const prevPowerplantId = event.params.prevPowerplantId;
+  const substation = Substation.load(`Substation-${substationId}`);
+  if (substation) {
+    substation.powerplant = `Powerplant-${powerplantId}`;
+    // means substation changed the power plant to another power plant
+    if (prevPowerplantId.toI32() !== 0) {
+      const prevPlant = Powerplant.load(`Powerplant-${prevPowerplantId}`);
+      if (prevPlant) {
+        let prevPlantSubstations = prevPlant.substations;
+        if (prevPlantSubstations) {
+          const index = prevPlantSubstations.indexOf(substation.id)
+          log.info("Index of Substation found at ------ :{}",[index.toString()])
+          prevPlantSubstations.splice(index, 1)
+          prevPlant.substations = prevPlantSubstations;
+          prevPlant.save();
+        }
+      }
+    }
+    const newPlant = Powerplant.load(`Powerplant-${powerplantId}`)
+    if(newPlant){
+      let newPlantSubstations = newPlant.substations
+      if(!newPlantSubstations){
+        newPlantSubstations =  new Array<string>();
+      }
+      newPlantSubstations.push(`Substation-${substationId}`)
+      newPlant.substations = newPlantSubstations
+      newPlant.save()
+    }
+    substation.save()
+  }
+}
+export function handleDistributorConnectedToSubstation(
+  event: DistributorConnectedToSubstation
+): void {
+  const distributorId = event.params.distributorId;
+  const substationId = event.params.substationId
+  const prevSubstationId = event.params.prevSubstationId
+  const distributor = Distributor.load(`Distributor-${distributorId}`)
+  if(distributor){
+    // update the substation connected to distributor to a new one
+    distributor.substation = `Substation-${substationId}`
+    // now we check if there already exists a previous substation connected to distributor -> if yes remove the distributor from that substation
+    const prevSubstation = Substation.load(`Substation-${prevSubstationId}`)
+    if(prevSubstation){
+      const prevSubstationDistributors = prevSubstation.distributors
+      if(prevSubstationDistributors){
+          const index = prevSubstationDistributors.indexOf(distributor.id)
+          prevSubstationDistributors.splice(index,1)
+          prevSubstation.distributors = prevSubstationDistributors
+          prevSubstation.save()   
+      }
+    }
+    const newSubstation = Substation.load(`Substation-${substationId}`)
+    if(newSubstation){
+      let newDistributors = newSubstation.distributors
+      if(!newDistributors){
+        newDistributors = new Array<string>();
+      }
+      newDistributors.push(distributor.id)
+      newSubstation.distributors=newDistributors
+      newSubstation.save()
+    }
+    distributor.save()
+  }
 }

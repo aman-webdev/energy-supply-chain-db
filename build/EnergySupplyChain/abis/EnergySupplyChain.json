@@ -10,18 +10,43 @@
       },
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "energyAvailableToBuy",
+        "type": "uint256"
+      }
+    ],
+    "name": "DistributorAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "distributorId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
         "internalType": "uint256",
         "name": "substationId",
         "type": "uint256"
       },
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "prevSubstationId",
+        "type": "uint256"
       }
     ],
-    "name": "DistributorAdded",
+    "name": "DistributorConnectedToSubstation",
     "type": "event"
   },
   {
@@ -129,18 +154,43 @@
       },
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
-        "name": "powerplantId",
+        "name": "energyAvailableToBuy",
+        "type": "uint256"
+      }
+    ],
+    "name": "SubstationAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "substationId",
         "type": "uint256"
       },
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "powerPlantId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "prevPowerplantId",
+        "type": "uint256"
       }
     ],
-    "name": "SubstationAdded",
+    "name": "SubstationConnectedToPowerPlant",
     "type": "event"
   },
   {
@@ -157,7 +207,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_substationIndex",
+        "name": "_energyAvailableToBuy",
         "type": "uint256"
       }
     ],
@@ -206,7 +256,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_powerPlantId",
+        "name": "_energyAvailableToBuy",
         "type": "uint256"
       },
       {
@@ -247,6 +297,32 @@
       }
     ],
     "name": "buyEnergyFromSubstation",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_substationIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "connectDistributorToSubstation",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "powerplantIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "connectSubstationToPowerplant",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
