@@ -10,18 +10,43 @@
       },
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "energyAvailableToBuy",
+        "type": "uint256"
+      }
+    ],
+    "name": "DistributorAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "distributorId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
         "internalType": "uint256",
         "name": "substationId",
         "type": "uint256"
       },
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "prevSubstationId",
+        "type": "uint256"
       }
     ],
-    "name": "DistributorAdded",
+    "name": "DistributorConnectedToSubstation",
     "type": "event"
   },
   {
@@ -129,27 +154,60 @@
       },
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "powerplantId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
         "internalType": "address",
         "name": "owner",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "energyAvailableToBuy",
+        "type": "uint256"
       }
     ],
     "name": "SubstationAdded",
     "type": "event"
   },
   {
+    "anonymous": false,
     "inputs": [
-      { "internalType": "string", "name": "_name", "type": "string" },
-      { "internalType": "string", "name": "_area", "type": "string" },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "substationId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "powerPlantId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "prevPowerplantId",
+        "type": "uint256"
+      }
+    ],
+    "name": "SubstationConnectedToPowerPlant",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_area",
+        "type": "string"
+      },
       {
         "internalType": "uint256",
-        "name": "_substationIndex",
+        "name": "_energyAvailableToBuy",
         "type": "uint256"
       }
     ],
@@ -173,8 +231,16 @@
   },
   {
     "inputs": [
-      { "internalType": "string", "name": "_name", "type": "string" },
-      { "internalType": "string", "name": "_area", "type": "string" },
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_area",
+        "type": "string"
+      },
       {
         "internalType": "uint256",
         "name": "_energyAvailableToBuy",
@@ -188,9 +254,21 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_powerPlantId", "type": "uint256" },
-      { "internalType": "string", "name": "_name", "type": "string" },
-      { "internalType": "string", "name": "_area", "type": "string" }
+      {
+        "internalType": "uint256",
+        "name": "_energyAvailableToBuy",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_area",
+        "type": "string"
+      }
     ],
     "name": "addSubstation",
     "outputs": [],
@@ -199,7 +277,11 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_energyAmount", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_energyAmount",
+        "type": "uint256"
+      }
     ],
     "name": "buyEnergyFromPowerPlant",
     "outputs": [],
@@ -208,7 +290,11 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_energyAmount", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_energyAmount",
+        "type": "uint256"
+      }
     ],
     "name": "buyEnergyFromSubstation",
     "outputs": [],
@@ -216,24 +302,80 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_substationIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "connectDistributorToSubstation",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "powerplantIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "connectSubstationToPowerplant",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "distributorAddressToIds",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "name": "distributors",
     "outputs": [
-      { "internalType": "uint256", "name": "substationId", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "substationId",
+        "type": "uint256"
+      },
       {
         "internalType": "address",
         "name": "distributorAddress",
         "type": "address"
       },
-      { "internalType": "string", "name": "name", "type": "string" },
-      { "internalType": "string", "name": "area", "type": "string" },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "area",
+        "type": "string"
+      },
       {
         "internalType": "uint256",
         "name": "energyAvailable",
@@ -275,8 +417,16 @@
             "name": "distributorAddress",
             "type": "address"
           },
-          { "internalType": "string", "name": "name", "type": "string" },
-          { "internalType": "string", "name": "area", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "area",
+            "type": "string"
+          },
           {
             "internalType": "uint256",
             "name": "energyAvailable",
@@ -313,10 +463,20 @@
         "name": "_distributorIndex",
         "type": "uint256"
       },
-      { "internalType": "uint256", "name": "_day", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_day",
+        "type": "uint256"
+      }
     ],
     "name": "getDistributorEnergyBoguhtByDay",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -327,10 +487,20 @@
         "name": "_powerplantIndex",
         "type": "uint256"
       },
-      { "internalType": "uint256", "name": "_day", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_day",
+        "type": "uint256"
+      }
     ],
     "name": "getPowerPlantEnergyProducedByDay",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -341,10 +511,20 @@
         "name": "_powerplantIndex",
         "type": "uint256"
       },
-      { "internalType": "uint256", "name": "_day", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_day",
+        "type": "uint256"
+      }
     ],
     "name": "getPowerPlantEnergySoldByDay",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -360,8 +540,16 @@
     "outputs": [
       {
         "components": [
-          { "internalType": "string", "name": "name", "type": "string" },
-          { "internalType": "string", "name": "area", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "area",
+            "type": "string"
+          },
           {
             "internalType": "address",
             "name": "powerplantAddress",
@@ -408,8 +596,16 @@
     "outputs": [
       {
         "components": [
-          { "internalType": "string", "name": "name", "type": "string" },
-          { "internalType": "string", "name": "area", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "area",
+            "type": "string"
+          },
           {
             "internalType": "uint256",
             "name": "powerplantId",
@@ -456,10 +652,20 @@
         "name": "_substationIndex",
         "type": "uint256"
       },
-      { "internalType": "uint256", "name": "_day", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_day",
+        "type": "uint256"
+      }
     ],
     "name": "getSubstationEnergyBoughtByDay",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -470,10 +676,20 @@
         "name": "_substationIndex",
         "type": "uint256"
       },
-      { "internalType": "uint256", "name": "_day", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_day",
+        "type": "uint256"
+      }
     ],
     "name": "getSubstationEnergySoldByDay",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -489,8 +705,16 @@
     "outputs": [
       {
         "components": [
-          { "internalType": "string", "name": "name", "type": "string" },
-          { "internalType": "string", "name": "area", "type": "string" },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "area",
+            "type": "string"
+          },
           {
             "internalType": "uint256",
             "name": "powerplantId",
@@ -531,11 +755,25 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "name": "powerPlants",
     "outputs": [
-      { "internalType": "string", "name": "name", "type": "string" },
-      { "internalType": "string", "name": "area", "type": "string" },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "area",
+        "type": "string"
+      },
       {
         "internalType": "address",
         "name": "powerplantAddress",
@@ -561,19 +799,49 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "powerPlantsAddressToIds",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "name": "substations",
     "outputs": [
-      { "internalType": "string", "name": "name", "type": "string" },
-      { "internalType": "string", "name": "area", "type": "string" },
-      { "internalType": "uint256", "name": "powerplantId", "type": "uint256" },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "area",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "powerplantId",
+        "type": "uint256"
+      },
       {
         "internalType": "address",
         "name": "substationAddress",
@@ -599,9 +867,21 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "substationsAddressToIds",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   }

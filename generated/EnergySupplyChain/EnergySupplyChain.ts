@@ -27,12 +27,38 @@ export class DistributorAdded__Params {
     return this._event.parameters[0].value.toBigInt();
   }
 
+  get owner(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get energyAvailableToBuy(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class DistributorConnectedToSubstation extends ethereum.Event {
+  get params(): DistributorConnectedToSubstation__Params {
+    return new DistributorConnectedToSubstation__Params(this);
+  }
+}
+
+export class DistributorConnectedToSubstation__Params {
+  _event: DistributorConnectedToSubstation;
+
+  constructor(event: DistributorConnectedToSubstation) {
+    this._event = event;
+  }
+
+  get distributorId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
   get substationId(): BigInt {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get owner(): Address {
-    return this._event.parameters[2].value.toAddress();
+  get prevSubstationId(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 }
 
@@ -153,12 +179,38 @@ export class SubstationAdded__Params {
     return this._event.parameters[0].value.toBigInt();
   }
 
-  get powerplantId(): BigInt {
+  get owner(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+
+  get energyAvailableToBuy(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class SubstationConnectedToPowerPlant extends ethereum.Event {
+  get params(): SubstationConnectedToPowerPlant__Params {
+    return new SubstationConnectedToPowerPlant__Params(this);
+  }
+}
+
+export class SubstationConnectedToPowerPlant__Params {
+  _event: SubstationConnectedToPowerPlant;
+
+  constructor(event: SubstationConnectedToPowerPlant) {
+    this._event = event;
+  }
+
+  get substationId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get powerPlantId(): BigInt {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get owner(): Address {
-    return this._event.parameters[2].value.toAddress();
+  get prevPowerplantId(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 }
 
@@ -1026,7 +1078,7 @@ export class AddDistributorCall__Inputs {
     return this._call.inputValues[1].value.toString();
   }
 
-  get _substationIndex(): BigInt {
+  get _energyAvailableToBuy(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
   }
 }
@@ -1124,7 +1176,7 @@ export class AddSubstationCall__Inputs {
     this._call = call;
   }
 
-  get _powerPlantId(): BigInt {
+  get _energyAvailableToBuy(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
   }
 
@@ -1201,6 +1253,66 @@ export class BuyEnergyFromSubstationCall__Outputs {
   _call: BuyEnergyFromSubstationCall;
 
   constructor(call: BuyEnergyFromSubstationCall) {
+    this._call = call;
+  }
+}
+
+export class ConnectDistributorToSubstationCall extends ethereum.Call {
+  get inputs(): ConnectDistributorToSubstationCall__Inputs {
+    return new ConnectDistributorToSubstationCall__Inputs(this);
+  }
+
+  get outputs(): ConnectDistributorToSubstationCall__Outputs {
+    return new ConnectDistributorToSubstationCall__Outputs(this);
+  }
+}
+
+export class ConnectDistributorToSubstationCall__Inputs {
+  _call: ConnectDistributorToSubstationCall;
+
+  constructor(call: ConnectDistributorToSubstationCall) {
+    this._call = call;
+  }
+
+  get _substationIndex(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class ConnectDistributorToSubstationCall__Outputs {
+  _call: ConnectDistributorToSubstationCall;
+
+  constructor(call: ConnectDistributorToSubstationCall) {
+    this._call = call;
+  }
+}
+
+export class ConnectSubstationToPowerplantCall extends ethereum.Call {
+  get inputs(): ConnectSubstationToPowerplantCall__Inputs {
+    return new ConnectSubstationToPowerplantCall__Inputs(this);
+  }
+
+  get outputs(): ConnectSubstationToPowerplantCall__Outputs {
+    return new ConnectSubstationToPowerplantCall__Outputs(this);
+  }
+}
+
+export class ConnectSubstationToPowerplantCall__Inputs {
+  _call: ConnectSubstationToPowerplantCall;
+
+  constructor(call: ConnectSubstationToPowerplantCall) {
+    this._call = call;
+  }
+
+  get powerplantIndex(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class ConnectSubstationToPowerplantCall__Outputs {
+  _call: ConnectSubstationToPowerplantCall;
+
+  constructor(call: ConnectSubstationToPowerplantCall) {
     this._call = call;
   }
 }

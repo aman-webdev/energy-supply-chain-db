@@ -266,6 +266,23 @@ export class Substation extends Entity {
     this.set("energyAvailableToBuy", Value.fromBigInt(value));
   }
 
+  get distributors(): Array<string> | null {
+    let value = this.get("distributors");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set distributors(value: Array<string> | null) {
+    if (!value) {
+      this.unset("distributors");
+    } else {
+      this.set("distributors", Value.fromStringArray(<Array<string>>value));
+    }
+  }
+
   get addedAt(): BigInt {
     let value = this.get("addedAt");
     return value!.toBigInt();
@@ -315,13 +332,182 @@ export class Substation extends Entity {
     }
   }
 
-  get powerplant(): string {
+  get powerplant(): string | null {
     let value = this.get("powerplant");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set powerplant(value: string | null) {
+    if (!value) {
+      this.unset("powerplant");
+    } else {
+      this.set("powerplant", Value.fromString(<string>value));
+    }
+  }
+}
+
+export class Distributor extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Distributor entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type Distributor must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("Distributor", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Distributor | null {
+    return changetype<Distributor | null>(store.get("Distributor", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
     return value!.toString();
   }
 
-  set powerplant(value: string) {
-    this.set("powerplant", Value.fromString(value));
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get number(): i32 {
+    let value = this.get("number");
+    return value!.toI32();
+  }
+
+  set number(value: i32) {
+    this.set("number", Value.fromI32(value));
+  }
+
+  get owner(): Bytes {
+    let value = this.get("owner");
+    return value!.toBytes();
+  }
+
+  set owner(value: Bytes) {
+    this.set("owner", Value.fromBytes(value));
+  }
+
+  get name(): string {
+    let value = this.get("name");
+    return value!.toString();
+  }
+
+  set name(value: string) {
+    this.set("name", Value.fromString(value));
+  }
+
+  get area(): string {
+    let value = this.get("area");
+    return value!.toString();
+  }
+
+  set area(value: string) {
+    this.set("area", Value.fromString(value));
+  }
+
+  get totalEnergyBought(): BigInt {
+    let value = this.get("totalEnergyBought");
+    return value!.toBigInt();
+  }
+
+  set totalEnergyBought(value: BigInt) {
+    this.set("totalEnergyBought", Value.fromBigInt(value));
+  }
+
+  get totalEnergySold(): BigInt {
+    let value = this.get("totalEnergySold");
+    return value!.toBigInt();
+  }
+
+  set totalEnergySold(value: BigInt) {
+    this.set("totalEnergySold", Value.fromBigInt(value));
+  }
+
+  get energyAvailableToBuy(): BigInt {
+    let value = this.get("energyAvailableToBuy");
+    return value!.toBigInt();
+  }
+
+  set energyAvailableToBuy(value: BigInt) {
+    this.set("energyAvailableToBuy", Value.fromBigInt(value));
+  }
+
+  get addedAt(): BigInt {
+    let value = this.get("addedAt");
+    return value!.toBigInt();
+  }
+
+  set addedAt(value: BigInt) {
+    this.set("addedAt", Value.fromBigInt(value));
+  }
+
+  get energiesSoldByDate(): Array<string> | null {
+    let value = this.get("energiesSoldByDate");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set energiesSoldByDate(value: Array<string> | null) {
+    if (!value) {
+      this.unset("energiesSoldByDate");
+    } else {
+      this.set(
+        "energiesSoldByDate",
+        Value.fromStringArray(<Array<string>>value)
+      );
+    }
+  }
+
+  get energiesBoughtByDate(): Array<string> | null {
+    let value = this.get("energiesBoughtByDate");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set energiesBoughtByDate(value: Array<string> | null) {
+    if (!value) {
+      this.unset("energiesBoughtByDate");
+    } else {
+      this.set(
+        "energiesBoughtByDate",
+        Value.fromStringArray(<Array<string>>value)
+      );
+    }
+  }
+
+  get substation(): string | null {
+    let value = this.get("substation");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set substation(value: string | null) {
+    if (!value) {
+      this.unset("substation");
+    } else {
+      this.set("substation", Value.fromString(<string>value));
+    }
   }
 }
 
@@ -417,23 +603,5 @@ export class DailyEnergy extends Entity {
 
   set actionType(value: string) {
     this.set("actionType", Value.fromString(value));
-  }
-
-  get to(): BigInt {
-    let value = this.get("to");
-    return value!.toBigInt();
-  }
-
-  set to(value: BigInt) {
-    this.set("to", Value.fromBigInt(value));
-  }
-
-  get typeTo(): string {
-    let value = this.get("typeTo");
-    return value!.toString();
-  }
-
-  set typeTo(value: string) {
-    this.set("typeTo", Value.fromString(value));
   }
 }

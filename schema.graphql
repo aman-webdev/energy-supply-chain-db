@@ -36,11 +36,27 @@ type Substation @entity{
   totalEnergyBought:BigInt!
   totalEnergySold:BigInt!
   energyAvailableToBuy:BigInt!
-  # substations:[Substation!] // add distributors
+  distributors:[Distributor!]
   addedAt:BigInt!
   energiesSoldByDate:[DailyEnergy!]
   energiesBoughtByDate:[DailyEnergy!]
-  powerplant:Powerplant!
+  powerplant:Powerplant
+}
+
+type Distributor @entity{
+  id:String!
+  number:Int!
+  owner:Bytes!
+  name:String!
+  area:String!
+  totalEnergyBought:BigInt!
+  totalEnergySold:BigInt!
+  energyAvailableToBuy:BigInt!
+  # substations:[Substation!] // add consumers
+  addedAt:BigInt!
+  energiesSoldByDate:[DailyEnergy!]
+  energiesBoughtByDate:[DailyEnergy!]
+  substation:Substation
 }
 
 type DailyEnergy @entity{
