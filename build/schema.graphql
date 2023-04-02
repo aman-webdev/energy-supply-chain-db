@@ -52,11 +52,31 @@ type Distributor @entity{
   totalEnergyBought:BigInt!
   totalEnergySold:BigInt!
   energyAvailableToBuy:BigInt!
-  # substations:[Substation!] // add consumers
+  consumers:[Consumer!]
   addedAt:BigInt!
   energiesSoldByDate:[DailyEnergy!]
   energiesBoughtByDate:[DailyEnergy!]
   substation:Substation
+  isElectricitySupply:Boolean!
+  toShowLessEnergyWarning:Boolean!
+}
+
+type Consumer @entity{
+  id:String!
+  number:Int!
+  owner:Bytes!
+  name:String!
+  totalEnergyBought:BigInt!
+  isElectricitySupply:Boolean!
+  payableAmountForElectricity:BigInt!
+  startCycleTime:BigInt!
+  endCycleTime:BigInt!
+  isLastElectricityBillPaid:Boolean!
+  energyConsumedIncurrentCycle:BigInt!
+  addedAt:BigInt!
+  energiesBoughtByDate:[DailyEnergy!]
+  distributor:Distributor
+  payments:[ConsumerPayment!]
 }
 
 type DailyEnergy @entity{
@@ -68,4 +88,15 @@ type DailyEnergy @entity{
   address:Bytes!
   userId:BigInt!
   actionType:String!
+}
+
+type ConsumerPayment @entity{
+  id:String!
+  # TODO: add ! to amount paid
+  amountPaid:BigInt
+  startTime:BigInt!
+  endTime:BigInt!
+  unitsConsumed:BigInt!
+  consumer:Consumer!
+  date:String!
 }

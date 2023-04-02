@@ -6,9 +6,9 @@ dataSources:
     name: EnergySupplyChain
     network: mumbai
     source:
-      address: "0x81b74b18Fa8D079A0712C3db774D3Ee44BCE3FfE"
+      address: "0x0FEC9997811195552cB21BF0EC7350258F9DB41a"
       abi: EnergySupplyChain
-      startBlock: 33092106
+      startBlock: 33862469
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -40,4 +40,14 @@ dataSources:
           handler: handleSubstationAdded
         - event: SubstationConnectedToPowerPlant(indexed uint256,indexed uint256,indexed uint256)
           handler: handleSubstationConnectedToPowerPlant
+        - event: ConsumerAdded(indexed uint256,address)
+          handler: handleConsumerAdded
+        - event: ConsumerConnectedToDistributor(indexed uint256,indexed uint256,indexed uint256)
+          handler: handleConsumerConnectedToDistributor
+        - event: ElectricityPaidByConsumer(indexed uint256,uint256,uint256,uint256)
+          handler: handleElectricityPaidByConsumer
+        - event: UpdateUnitsConsumedRan(uint256)
+          handler: handleUpdateUnitsConsumedRan
+        - event: ConsumerCancelledElectricity(uint256,uint256,uint256,uint256,uint256)
+          handler: handleConsumerCancelledElectricity
       file: EnergySupplyChain\EnergySupplyChain.wasm

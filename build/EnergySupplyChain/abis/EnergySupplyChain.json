@@ -5,6 +5,87 @@
       {
         "indexed": true,
         "internalType": "uint256",
+        "name": "consumerId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "ConsumerAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "consumerTicker",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "distributorTicker",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "energyConsumed",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "today",
+        "type": "uint256"
+      }
+    ],
+    "name": "ConsumerCancelledElectricity",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "consumerId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "distributorId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "prevDistributorId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ConsumerConnectedToDistributor",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
         "name": "distributorId",
         "type": "uint256"
       },
@@ -47,6 +128,37 @@
       }
     ],
     "name": "DistributorConnectedToSubstation",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "consumerId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "energyConsumed",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "endTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "ElectricityPaidByConsumer",
     "type": "event"
   },
   {
@@ -194,6 +306,37 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "day",
+        "type": "uint256"
+      }
+    ],
+    "name": "UpdateUnitsConsumedRan",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_homeAddress",
+        "type": "string"
+      }
+    ],
+    "name": "addConsumer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "string",
@@ -302,6 +445,26 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "calculateEnergyConsumptionOfEachConsumer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_distributorIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "connectConsumerToDistributor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -333,9 +496,174 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "consumerPayments",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "unitsConsumed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "endTime",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "consumers",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "homeAddress",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "consumerAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "distributorId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalEnergyConsumed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isElectricitySupply",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "payableAmountForEnergy",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "startCycleTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "endCycleTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isLastElectricityBillPaid",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "energyConsumedInCurrentCycle",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "consumersAddressToIds",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "consumersDailyEnergyBoughtById",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "name": "distributorAddressToIds",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "distributorArray",
     "outputs": [
       {
         "internalType": "uint256",
@@ -390,6 +718,159 @@
         "internalType": "uint256",
         "name": "totalEnergyBought",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isEnergySupply",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isLessEnergyWarning",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "distributorsDailyEnergyBoughtById",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "distributorsDailyEnergySoldById",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_consumerIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "getConsumerById",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "homeAddress",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "consumerAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "distributorId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalEnergyConsumed",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isElectricitySupply",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "payableAmountForEnergy",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "startCycleTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "endCycleTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isLastElectricityBillPaid",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "energyConsumedInCurrentCycle",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct ElectricitySupplyChain.Consumer",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_distributorIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "getConsumersFromADistributor",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
       }
     ],
     "stateMutability": "view",
@@ -446,6 +927,16 @@
             "internalType": "uint256",
             "name": "totalEnergyBought",
             "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isEnergySupply",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isLessEnergyWarning",
+            "type": "bool"
           }
         ],
         "internalType": "struct ElectricitySupplyChain.Distributor",
@@ -475,6 +966,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getDistributors",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
       }
     ],
     "stateMutability": "view",
@@ -758,6 +1262,39 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "consumerIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "getUnitsConsumedByConsumerInCycle",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "payBill",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "payBillAndCancelSupply",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -807,6 +1344,54 @@
       }
     ],
     "name": "powerPlantsAddressToIds",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "powerPlantsDailyEnergyProducedById",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "powerPlantsDailyEnergySoldById",
     "outputs": [
       {
         "internalType": "uint256",
@@ -875,6 +1460,54 @@
       }
     ],
     "name": "substationsAddressToIds",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "substationsDailyEnergyBoughtById",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "substationsDailyEnergySoldById",
     "outputs": [
       {
         "internalType": "uint256",

@@ -10,6 +10,88 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
+export class ConsumerAdded extends ethereum.Event {
+  get params(): ConsumerAdded__Params {
+    return new ConsumerAdded__Params(this);
+  }
+}
+
+export class ConsumerAdded__Params {
+  _event: ConsumerAdded;
+
+  constructor(event: ConsumerAdded) {
+    this._event = event;
+  }
+
+  get consumerId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get owner(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+}
+
+export class ConsumerCancelledElectricity extends ethereum.Event {
+  get params(): ConsumerCancelledElectricity__Params {
+    return new ConsumerCancelledElectricity__Params(this);
+  }
+}
+
+export class ConsumerCancelledElectricity__Params {
+  _event: ConsumerCancelledElectricity;
+
+  constructor(event: ConsumerCancelledElectricity) {
+    this._event = event;
+  }
+
+  get consumerTicker(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get distributorTicker(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get energyConsumed(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+
+  get startTime(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+
+  get today(): BigInt {
+    return this._event.parameters[4].value.toBigInt();
+  }
+}
+
+export class ConsumerConnectedToDistributor extends ethereum.Event {
+  get params(): ConsumerConnectedToDistributor__Params {
+    return new ConsumerConnectedToDistributor__Params(this);
+  }
+}
+
+export class ConsumerConnectedToDistributor__Params {
+  _event: ConsumerConnectedToDistributor;
+
+  constructor(event: ConsumerConnectedToDistributor) {
+    this._event = event;
+  }
+
+  get consumerId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get distributorId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get prevDistributorId(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
 export class DistributorAdded extends ethereum.Event {
   get params(): DistributorAdded__Params {
     return new DistributorAdded__Params(this);
@@ -59,6 +141,36 @@ export class DistributorConnectedToSubstation__Params {
 
   get prevSubstationId(): BigInt {
     return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class ElectricityPaidByConsumer extends ethereum.Event {
+  get params(): ElectricityPaidByConsumer__Params {
+    return new ElectricityPaidByConsumer__Params(this);
+  }
+}
+
+export class ElectricityPaidByConsumer__Params {
+  _event: ElectricityPaidByConsumer;
+
+  constructor(event: ElectricityPaidByConsumer) {
+    this._event = event;
+  }
+
+  get consumerId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get energyConsumed(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get startTime(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+
+  get endTime(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
   }
 }
 
@@ -214,23 +326,81 @@ export class SubstationConnectedToPowerPlant__Params {
   }
 }
 
-export class EnergySupplyChain__distributorsResult {
+export class UpdateUnitsConsumedRan extends ethereum.Event {
+  get params(): UpdateUnitsConsumedRan__Params {
+    return new UpdateUnitsConsumedRan__Params(this);
+  }
+}
+
+export class UpdateUnitsConsumedRan__Params {
+  _event: UpdateUnitsConsumedRan;
+
+  constructor(event: UpdateUnitsConsumedRan) {
+    this._event = event;
+  }
+
+  get day(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
+export class EnergySupplyChain__consumerPaymentsResult {
   value0: BigInt;
-  value1: Address;
-  value2: string;
-  value3: string;
+  value1: BigInt;
+  value2: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt, value2: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    map.set("value2", ethereum.Value.fromUnsignedBigInt(this.value2));
+    return map;
+  }
+
+  getUnitsConsumed(): BigInt {
+    return this.value0;
+  }
+
+  getStartTime(): BigInt {
+    return this.value1;
+  }
+
+  getEndTime(): BigInt {
+    return this.value2;
+  }
+}
+
+export class EnergySupplyChain__consumersResult {
+  value0: string;
+  value1: string;
+  value2: Address;
+  value3: BigInt;
   value4: BigInt;
-  value5: BigInt;
+  value5: boolean;
   value6: BigInt;
+  value7: BigInt;
+  value8: BigInt;
+  value9: boolean;
+  value10: BigInt;
 
   constructor(
-    value0: BigInt,
-    value1: Address,
-    value2: string,
-    value3: string,
+    value0: string,
+    value1: string,
+    value2: Address,
+    value3: BigInt,
     value4: BigInt,
-    value5: BigInt,
-    value6: BigInt
+    value5: boolean,
+    value6: BigInt,
+    value7: BigInt,
+    value8: BigInt,
+    value9: boolean,
+    value10: BigInt
   ) {
     this.value0 = value0;
     this.value1 = value1;
@@ -239,6 +409,104 @@ export class EnergySupplyChain__distributorsResult {
     this.value4 = value4;
     this.value5 = value5;
     this.value6 = value6;
+    this.value7 = value7;
+    this.value8 = value8;
+    this.value9 = value9;
+    this.value10 = value10;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromString(this.value0));
+    map.set("value1", ethereum.Value.fromString(this.value1));
+    map.set("value2", ethereum.Value.fromAddress(this.value2));
+    map.set("value3", ethereum.Value.fromUnsignedBigInt(this.value3));
+    map.set("value4", ethereum.Value.fromUnsignedBigInt(this.value4));
+    map.set("value5", ethereum.Value.fromBoolean(this.value5));
+    map.set("value6", ethereum.Value.fromUnsignedBigInt(this.value6));
+    map.set("value7", ethereum.Value.fromUnsignedBigInt(this.value7));
+    map.set("value8", ethereum.Value.fromUnsignedBigInt(this.value8));
+    map.set("value9", ethereum.Value.fromBoolean(this.value9));
+    map.set("value10", ethereum.Value.fromUnsignedBigInt(this.value10));
+    return map;
+  }
+
+  getName(): string {
+    return this.value0;
+  }
+
+  getHomeAddress(): string {
+    return this.value1;
+  }
+
+  getConsumerAddress(): Address {
+    return this.value2;
+  }
+
+  getDistributorId(): BigInt {
+    return this.value3;
+  }
+
+  getTotalEnergyConsumed(): BigInt {
+    return this.value4;
+  }
+
+  getIsElectricitySupply(): boolean {
+    return this.value5;
+  }
+
+  getPayableAmountForEnergy(): BigInt {
+    return this.value6;
+  }
+
+  getStartCycleTime(): BigInt {
+    return this.value7;
+  }
+
+  getEndCycleTime(): BigInt {
+    return this.value8;
+  }
+
+  getIsLastElectricityBillPaid(): boolean {
+    return this.value9;
+  }
+
+  getEnergyConsumedInCurrentCycle(): BigInt {
+    return this.value10;
+  }
+}
+
+export class EnergySupplyChain__distributorsResult {
+  value0: BigInt;
+  value1: Address;
+  value2: string;
+  value3: string;
+  value4: BigInt;
+  value5: BigInt;
+  value6: BigInt;
+  value7: boolean;
+  value8: boolean;
+
+  constructor(
+    value0: BigInt,
+    value1: Address,
+    value2: string,
+    value3: string,
+    value4: BigInt,
+    value5: BigInt,
+    value6: BigInt,
+    value7: boolean,
+    value8: boolean
+  ) {
+    this.value0 = value0;
+    this.value1 = value1;
+    this.value2 = value2;
+    this.value3 = value3;
+    this.value4 = value4;
+    this.value5 = value5;
+    this.value6 = value6;
+    this.value7 = value7;
+    this.value8 = value8;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
@@ -250,6 +518,8 @@ export class EnergySupplyChain__distributorsResult {
     map.set("value4", ethereum.Value.fromUnsignedBigInt(this.value4));
     map.set("value5", ethereum.Value.fromUnsignedBigInt(this.value5));
     map.set("value6", ethereum.Value.fromUnsignedBigInt(this.value6));
+    map.set("value7", ethereum.Value.fromBoolean(this.value7));
+    map.set("value8", ethereum.Value.fromBoolean(this.value8));
     return map;
   }
 
@@ -279,6 +549,60 @@ export class EnergySupplyChain__distributorsResult {
 
   getTotalEnergyBought(): BigInt {
     return this.value6;
+  }
+
+  getIsEnergySupply(): boolean {
+    return this.value7;
+  }
+
+  getIsLessEnergyWarning(): boolean {
+    return this.value8;
+  }
+}
+
+export class EnergySupplyChain__getConsumerByIdResultValue0Struct extends ethereum.Tuple {
+  get name(): string {
+    return this[0].toString();
+  }
+
+  get homeAddress(): string {
+    return this[1].toString();
+  }
+
+  get consumerAddress(): Address {
+    return this[2].toAddress();
+  }
+
+  get distributorId(): BigInt {
+    return this[3].toBigInt();
+  }
+
+  get totalEnergyConsumed(): BigInt {
+    return this[4].toBigInt();
+  }
+
+  get isElectricitySupply(): boolean {
+    return this[5].toBoolean();
+  }
+
+  get payableAmountForEnergy(): BigInt {
+    return this[6].toBigInt();
+  }
+
+  get startCycleTime(): BigInt {
+    return this[7].toBigInt();
+  }
+
+  get endCycleTime(): BigInt {
+    return this[8].toBigInt();
+  }
+
+  get isLastElectricityBillPaid(): boolean {
+    return this[9].toBoolean();
+  }
+
+  get energyConsumedInCurrentCycle(): BigInt {
+    return this[10].toBigInt();
   }
 }
 
@@ -313,6 +637,14 @@ export class EnergySupplyChain__getDistributorByIdResultValue0Struct extends eth
 
   get totalEnergyBought(): BigInt {
     return this[7].toBigInt();
+  }
+
+  get isEnergySupply(): boolean {
+    return this[8].toBoolean();
+  }
+
+  get isLessEnergyWarning(): boolean {
+    return this[9].toBoolean();
   }
 }
 
@@ -547,6 +879,157 @@ export class EnergySupplyChain extends ethereum.SmartContract {
     return new EnergySupplyChain("EnergySupplyChain", address);
   }
 
+  consumerPayments(
+    param0: Address,
+    param1: BigInt
+  ): EnergySupplyChain__consumerPaymentsResult {
+    let result = super.call(
+      "consumerPayments",
+      "consumerPayments(address,uint256):(uint256,uint256,uint256)",
+      [
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+
+    return new EnergySupplyChain__consumerPaymentsResult(
+      result[0].toBigInt(),
+      result[1].toBigInt(),
+      result[2].toBigInt()
+    );
+  }
+
+  try_consumerPayments(
+    param0: Address,
+    param1: BigInt
+  ): ethereum.CallResult<EnergySupplyChain__consumerPaymentsResult> {
+    let result = super.tryCall(
+      "consumerPayments",
+      "consumerPayments(address,uint256):(uint256,uint256,uint256)",
+      [
+        ethereum.Value.fromAddress(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new EnergySupplyChain__consumerPaymentsResult(
+        value[0].toBigInt(),
+        value[1].toBigInt(),
+        value[2].toBigInt()
+      )
+    );
+  }
+
+  consumers(param0: BigInt): EnergySupplyChain__consumersResult {
+    let result = super.call(
+      "consumers",
+      "consumers(uint256):(string,string,address,uint256,uint256,bool,uint256,uint256,uint256,bool,uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)]
+    );
+
+    return new EnergySupplyChain__consumersResult(
+      result[0].toString(),
+      result[1].toString(),
+      result[2].toAddress(),
+      result[3].toBigInt(),
+      result[4].toBigInt(),
+      result[5].toBoolean(),
+      result[6].toBigInt(),
+      result[7].toBigInt(),
+      result[8].toBigInt(),
+      result[9].toBoolean(),
+      result[10].toBigInt()
+    );
+  }
+
+  try_consumers(
+    param0: BigInt
+  ): ethereum.CallResult<EnergySupplyChain__consumersResult> {
+    let result = super.tryCall(
+      "consumers",
+      "consumers(uint256):(string,string,address,uint256,uint256,bool,uint256,uint256,uint256,bool,uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new EnergySupplyChain__consumersResult(
+        value[0].toString(),
+        value[1].toString(),
+        value[2].toAddress(),
+        value[3].toBigInt(),
+        value[4].toBigInt(),
+        value[5].toBoolean(),
+        value[6].toBigInt(),
+        value[7].toBigInt(),
+        value[8].toBigInt(),
+        value[9].toBoolean(),
+        value[10].toBigInt()
+      )
+    );
+  }
+
+  consumersAddressToIds(param0: Address): BigInt {
+    let result = super.call(
+      "consumersAddressToIds",
+      "consumersAddressToIds(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_consumersAddressToIds(param0: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "consumersAddressToIds",
+      "consumersAddressToIds(address):(uint256)",
+      [ethereum.Value.fromAddress(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  consumersDailyEnergyBoughtById(param0: BigInt, param1: BigInt): BigInt {
+    let result = super.call(
+      "consumersDailyEnergyBoughtById",
+      "consumersDailyEnergyBoughtById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_consumersDailyEnergyBoughtById(
+    param0: BigInt,
+    param1: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "consumersDailyEnergyBoughtById",
+      "consumersDailyEnergyBoughtById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   distributorAddressToIds(param0: Address): BigInt {
     let result = super.call(
       "distributorAddressToIds",
@@ -570,10 +1053,33 @@ export class EnergySupplyChain extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  distributorArray(param0: BigInt): BigInt {
+    let result = super.call(
+      "distributorArray",
+      "distributorArray(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_distributorArray(param0: BigInt): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "distributorArray",
+      "distributorArray(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   distributors(param0: BigInt): EnergySupplyChain__distributorsResult {
     let result = super.call(
       "distributors",
-      "distributors(uint256):(uint256,address,string,string,uint256,uint256,uint256)",
+      "distributors(uint256):(uint256,address,string,string,uint256,uint256,uint256,bool,bool)",
       [ethereum.Value.fromUnsignedBigInt(param0)]
     );
 
@@ -584,7 +1090,9 @@ export class EnergySupplyChain extends ethereum.SmartContract {
       result[3].toString(),
       result[4].toBigInt(),
       result[5].toBigInt(),
-      result[6].toBigInt()
+      result[6].toBigInt(),
+      result[7].toBoolean(),
+      result[8].toBoolean()
     );
   }
 
@@ -593,7 +1101,7 @@ export class EnergySupplyChain extends ethereum.SmartContract {
   ): ethereum.CallResult<EnergySupplyChain__distributorsResult> {
     let result = super.tryCall(
       "distributors",
-      "distributors(uint256):(uint256,address,string,string,uint256,uint256,uint256)",
+      "distributors(uint256):(uint256,address,string,string,uint256,uint256,uint256,bool,bool)",
       [ethereum.Value.fromUnsignedBigInt(param0)]
     );
     if (result.reverted) {
@@ -608,9 +1116,133 @@ export class EnergySupplyChain extends ethereum.SmartContract {
         value[3].toString(),
         value[4].toBigInt(),
         value[5].toBigInt(),
-        value[6].toBigInt()
+        value[6].toBigInt(),
+        value[7].toBoolean(),
+        value[8].toBoolean()
       )
     );
+  }
+
+  distributorsDailyEnergyBoughtById(param0: BigInt, param1: BigInt): BigInt {
+    let result = super.call(
+      "distributorsDailyEnergyBoughtById",
+      "distributorsDailyEnergyBoughtById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_distributorsDailyEnergyBoughtById(
+    param0: BigInt,
+    param1: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "distributorsDailyEnergyBoughtById",
+      "distributorsDailyEnergyBoughtById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  distributorsDailyEnergySoldById(param0: BigInt, param1: BigInt): BigInt {
+    let result = super.call(
+      "distributorsDailyEnergySoldById",
+      "distributorsDailyEnergySoldById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_distributorsDailyEnergySoldById(
+    param0: BigInt,
+    param1: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "distributorsDailyEnergySoldById",
+      "distributorsDailyEnergySoldById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getConsumerById(
+    _consumerIndex: BigInt
+  ): EnergySupplyChain__getConsumerByIdResultValue0Struct {
+    let result = super.call(
+      "getConsumerById",
+      "getConsumerById(uint256):((string,string,address,uint256,uint256,bool,uint256,uint256,uint256,bool,uint256))",
+      [ethereum.Value.fromUnsignedBigInt(_consumerIndex)]
+    );
+
+    return changetype<EnergySupplyChain__getConsumerByIdResultValue0Struct>(
+      result[0].toTuple()
+    );
+  }
+
+  try_getConsumerById(
+    _consumerIndex: BigInt
+  ): ethereum.CallResult<EnergySupplyChain__getConsumerByIdResultValue0Struct> {
+    let result = super.tryCall(
+      "getConsumerById",
+      "getConsumerById(uint256):((string,string,address,uint256,uint256,bool,uint256,uint256,uint256,bool,uint256))",
+      [ethereum.Value.fromUnsignedBigInt(_consumerIndex)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      changetype<EnergySupplyChain__getConsumerByIdResultValue0Struct>(
+        value[0].toTuple()
+      )
+    );
+  }
+
+  getConsumersFromADistributor(_distributorIndex: BigInt): Array<BigInt> {
+    let result = super.call(
+      "getConsumersFromADistributor",
+      "getConsumersFromADistributor(uint256):(uint256[])",
+      [ethereum.Value.fromUnsignedBigInt(_distributorIndex)]
+    );
+
+    return result[0].toBigIntArray();
+  }
+
+  try_getConsumersFromADistributor(
+    _distributorIndex: BigInt
+  ): ethereum.CallResult<Array<BigInt>> {
+    let result = super.tryCall(
+      "getConsumersFromADistributor",
+      "getConsumersFromADistributor(uint256):(uint256[])",
+      [ethereum.Value.fromUnsignedBigInt(_distributorIndex)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigIntArray());
   }
 
   getDistributorById(
@@ -618,7 +1250,7 @@ export class EnergySupplyChain extends ethereum.SmartContract {
   ): EnergySupplyChain__getDistributorByIdResultValue0Struct {
     let result = super.call(
       "getDistributorById",
-      "getDistributorById(uint256):((uint256,address,string,string,uint256,uint256[],uint256,uint256))",
+      "getDistributorById(uint256):((uint256,address,string,string,uint256,uint256[],uint256,uint256,bool,bool))",
       [ethereum.Value.fromUnsignedBigInt(_distributorIndex)]
     );
 
@@ -634,7 +1266,7 @@ export class EnergySupplyChain extends ethereum.SmartContract {
   > {
     let result = super.tryCall(
       "getDistributorById",
-      "getDistributorById(uint256):((uint256,address,string,string,uint256,uint256[],uint256,uint256))",
+      "getDistributorById(uint256):((uint256,address,string,string,uint256,uint256[],uint256,uint256,bool,bool))",
       [ethereum.Value.fromUnsignedBigInt(_distributorIndex)]
     );
     if (result.reverted) {
@@ -681,6 +1313,29 @@ export class EnergySupplyChain extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getDistributors(): Array<BigInt> {
+    let result = super.call(
+      "getDistributors",
+      "getDistributors():(uint256[])",
+      []
+    );
+
+    return result[0].toBigIntArray();
+  }
+
+  try_getDistributors(): ethereum.CallResult<Array<BigInt>> {
+    let result = super.tryCall(
+      "getDistributors",
+      "getDistributors():(uint256[])",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigIntArray());
   }
 
   getPowerPlantEnergyProducedByDay(
@@ -922,6 +1577,31 @@ export class EnergySupplyChain extends ethereum.SmartContract {
     );
   }
 
+  getUnitsConsumedByConsumerInCycle(consumerIndex: BigInt): BigInt {
+    let result = super.call(
+      "getUnitsConsumedByConsumerInCycle",
+      "getUnitsConsumedByConsumerInCycle(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(consumerIndex)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getUnitsConsumedByConsumerInCycle(
+    consumerIndex: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getUnitsConsumedByConsumerInCycle",
+      "getUnitsConsumedByConsumerInCycle(uint256):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(consumerIndex)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   powerPlants(param0: BigInt): EnergySupplyChain__powerPlantsResult {
     let result = super.call(
       "powerPlants",
@@ -978,6 +1658,70 @@ export class EnergySupplyChain extends ethereum.SmartContract {
       "powerPlantsAddressToIds",
       "powerPlantsAddressToIds(address):(uint256)",
       [ethereum.Value.fromAddress(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  powerPlantsDailyEnergyProducedById(param0: BigInt, param1: BigInt): BigInt {
+    let result = super.call(
+      "powerPlantsDailyEnergyProducedById",
+      "powerPlantsDailyEnergyProducedById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_powerPlantsDailyEnergyProducedById(
+    param0: BigInt,
+    param1: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "powerPlantsDailyEnergyProducedById",
+      "powerPlantsDailyEnergyProducedById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  powerPlantsDailyEnergySoldById(param0: BigInt, param1: BigInt): BigInt {
+    let result = super.call(
+      "powerPlantsDailyEnergySoldById",
+      "powerPlantsDailyEnergySoldById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_powerPlantsDailyEnergySoldById(
+    param0: BigInt,
+    param1: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "powerPlantsDailyEnergySoldById",
+      "powerPlantsDailyEnergySoldById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -1050,6 +1794,104 @@ export class EnergySupplyChain extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  substationsDailyEnergyBoughtById(param0: BigInt, param1: BigInt): BigInt {
+    let result = super.call(
+      "substationsDailyEnergyBoughtById",
+      "substationsDailyEnergyBoughtById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_substationsDailyEnergyBoughtById(
+    param0: BigInt,
+    param1: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "substationsDailyEnergyBoughtById",
+      "substationsDailyEnergyBoughtById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  substationsDailyEnergySoldById(param0: BigInt, param1: BigInt): BigInt {
+    let result = super.call(
+      "substationsDailyEnergySoldById",
+      "substationsDailyEnergySoldById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_substationsDailyEnergySoldById(
+    param0: BigInt,
+    param1: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "substationsDailyEnergySoldById",
+      "substationsDailyEnergySoldById(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(param0),
+        ethereum.Value.fromUnsignedBigInt(param1)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+}
+
+export class AddConsumerCall extends ethereum.Call {
+  get inputs(): AddConsumerCall__Inputs {
+    return new AddConsumerCall__Inputs(this);
+  }
+
+  get outputs(): AddConsumerCall__Outputs {
+    return new AddConsumerCall__Outputs(this);
+  }
+}
+
+export class AddConsumerCall__Inputs {
+  _call: AddConsumerCall;
+
+  constructor(call: AddConsumerCall) {
+    this._call = call;
+  }
+
+  get _name(): string {
+    return this._call.inputValues[0].value.toString();
+  }
+
+  get _homeAddress(): string {
+    return this._call.inputValues[1].value.toString();
+  }
+}
+
+export class AddConsumerCall__Outputs {
+  _call: AddConsumerCall;
+
+  constructor(call: AddConsumerCall) {
+    this._call = call;
   }
 }
 
@@ -1257,6 +2099,62 @@ export class BuyEnergyFromSubstationCall__Outputs {
   }
 }
 
+export class CalculateEnergyConsumptionOfEachConsumerCall extends ethereum.Call {
+  get inputs(): CalculateEnergyConsumptionOfEachConsumerCall__Inputs {
+    return new CalculateEnergyConsumptionOfEachConsumerCall__Inputs(this);
+  }
+
+  get outputs(): CalculateEnergyConsumptionOfEachConsumerCall__Outputs {
+    return new CalculateEnergyConsumptionOfEachConsumerCall__Outputs(this);
+  }
+}
+
+export class CalculateEnergyConsumptionOfEachConsumerCall__Inputs {
+  _call: CalculateEnergyConsumptionOfEachConsumerCall;
+
+  constructor(call: CalculateEnergyConsumptionOfEachConsumerCall) {
+    this._call = call;
+  }
+}
+
+export class CalculateEnergyConsumptionOfEachConsumerCall__Outputs {
+  _call: CalculateEnergyConsumptionOfEachConsumerCall;
+
+  constructor(call: CalculateEnergyConsumptionOfEachConsumerCall) {
+    this._call = call;
+  }
+}
+
+export class ConnectConsumerToDistributorCall extends ethereum.Call {
+  get inputs(): ConnectConsumerToDistributorCall__Inputs {
+    return new ConnectConsumerToDistributorCall__Inputs(this);
+  }
+
+  get outputs(): ConnectConsumerToDistributorCall__Outputs {
+    return new ConnectConsumerToDistributorCall__Outputs(this);
+  }
+}
+
+export class ConnectConsumerToDistributorCall__Inputs {
+  _call: ConnectConsumerToDistributorCall;
+
+  constructor(call: ConnectConsumerToDistributorCall) {
+    this._call = call;
+  }
+
+  get _distributorIndex(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class ConnectConsumerToDistributorCall__Outputs {
+  _call: ConnectConsumerToDistributorCall;
+
+  constructor(call: ConnectConsumerToDistributorCall) {
+    this._call = call;
+  }
+}
+
 export class ConnectDistributorToSubstationCall extends ethereum.Call {
   get inputs(): ConnectDistributorToSubstationCall__Inputs {
     return new ConnectDistributorToSubstationCall__Inputs(this);
@@ -1313,6 +2211,58 @@ export class ConnectSubstationToPowerplantCall__Outputs {
   _call: ConnectSubstationToPowerplantCall;
 
   constructor(call: ConnectSubstationToPowerplantCall) {
+    this._call = call;
+  }
+}
+
+export class PayBillCall extends ethereum.Call {
+  get inputs(): PayBillCall__Inputs {
+    return new PayBillCall__Inputs(this);
+  }
+
+  get outputs(): PayBillCall__Outputs {
+    return new PayBillCall__Outputs(this);
+  }
+}
+
+export class PayBillCall__Inputs {
+  _call: PayBillCall;
+
+  constructor(call: PayBillCall) {
+    this._call = call;
+  }
+}
+
+export class PayBillCall__Outputs {
+  _call: PayBillCall;
+
+  constructor(call: PayBillCall) {
+    this._call = call;
+  }
+}
+
+export class PayBillAndCancelSupplyCall extends ethereum.Call {
+  get inputs(): PayBillAndCancelSupplyCall__Inputs {
+    return new PayBillAndCancelSupplyCall__Inputs(this);
+  }
+
+  get outputs(): PayBillAndCancelSupplyCall__Outputs {
+    return new PayBillAndCancelSupplyCall__Outputs(this);
+  }
+}
+
+export class PayBillAndCancelSupplyCall__Inputs {
+  _call: PayBillAndCancelSupplyCall;
+
+  constructor(call: PayBillAndCancelSupplyCall) {
+    this._call = call;
+  }
+}
+
+export class PayBillAndCancelSupplyCall__Outputs {
+  _call: PayBillAndCancelSupplyCall;
+
+  constructor(call: PayBillAndCancelSupplyCall) {
     this._call = call;
   }
 }

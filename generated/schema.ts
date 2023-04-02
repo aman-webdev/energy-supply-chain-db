@@ -444,6 +444,23 @@ export class Distributor extends Entity {
     this.set("energyAvailableToBuy", Value.fromBigInt(value));
   }
 
+  get consumers(): Array<string> | null {
+    let value = this.get("consumers");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set consumers(value: Array<string> | null) {
+    if (!value) {
+      this.unset("consumers");
+    } else {
+      this.set("consumers", Value.fromStringArray(<Array<string>>value));
+    }
+  }
+
   get addedAt(): BigInt {
     let value = this.get("addedAt");
     return value!.toBigInt();
@@ -507,6 +524,209 @@ export class Distributor extends Entity {
       this.unset("substation");
     } else {
       this.set("substation", Value.fromString(<string>value));
+    }
+  }
+
+  get isElectricitySupply(): boolean {
+    let value = this.get("isElectricitySupply");
+    return value!.toBoolean();
+  }
+
+  set isElectricitySupply(value: boolean) {
+    this.set("isElectricitySupply", Value.fromBoolean(value));
+  }
+
+  get toShowLessEnergyWarning(): boolean {
+    let value = this.get("toShowLessEnergyWarning");
+    return value!.toBoolean();
+  }
+
+  set toShowLessEnergyWarning(value: boolean) {
+    this.set("toShowLessEnergyWarning", Value.fromBoolean(value));
+  }
+}
+
+export class Consumer extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Consumer entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type Consumer must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("Consumer", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Consumer | null {
+    return changetype<Consumer | null>(store.get("Consumer", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get number(): i32 {
+    let value = this.get("number");
+    return value!.toI32();
+  }
+
+  set number(value: i32) {
+    this.set("number", Value.fromI32(value));
+  }
+
+  get owner(): Bytes {
+    let value = this.get("owner");
+    return value!.toBytes();
+  }
+
+  set owner(value: Bytes) {
+    this.set("owner", Value.fromBytes(value));
+  }
+
+  get name(): string {
+    let value = this.get("name");
+    return value!.toString();
+  }
+
+  set name(value: string) {
+    this.set("name", Value.fromString(value));
+  }
+
+  get totalEnergyBought(): BigInt {
+    let value = this.get("totalEnergyBought");
+    return value!.toBigInt();
+  }
+
+  set totalEnergyBought(value: BigInt) {
+    this.set("totalEnergyBought", Value.fromBigInt(value));
+  }
+
+  get isElectricitySupply(): boolean {
+    let value = this.get("isElectricitySupply");
+    return value!.toBoolean();
+  }
+
+  set isElectricitySupply(value: boolean) {
+    this.set("isElectricitySupply", Value.fromBoolean(value));
+  }
+
+  get payableAmountForElectricity(): BigInt {
+    let value = this.get("payableAmountForElectricity");
+    return value!.toBigInt();
+  }
+
+  set payableAmountForElectricity(value: BigInt) {
+    this.set("payableAmountForElectricity", Value.fromBigInt(value));
+  }
+
+  get startCycleTime(): BigInt {
+    let value = this.get("startCycleTime");
+    return value!.toBigInt();
+  }
+
+  set startCycleTime(value: BigInt) {
+    this.set("startCycleTime", Value.fromBigInt(value));
+  }
+
+  get endCycleTime(): BigInt {
+    let value = this.get("endCycleTime");
+    return value!.toBigInt();
+  }
+
+  set endCycleTime(value: BigInt) {
+    this.set("endCycleTime", Value.fromBigInt(value));
+  }
+
+  get isLastElectricityBillPaid(): boolean {
+    let value = this.get("isLastElectricityBillPaid");
+    return value!.toBoolean();
+  }
+
+  set isLastElectricityBillPaid(value: boolean) {
+    this.set("isLastElectricityBillPaid", Value.fromBoolean(value));
+  }
+
+  get energyConsumedIncurrentCycle(): BigInt {
+    let value = this.get("energyConsumedIncurrentCycle");
+    return value!.toBigInt();
+  }
+
+  set energyConsumedIncurrentCycle(value: BigInt) {
+    this.set("energyConsumedIncurrentCycle", Value.fromBigInt(value));
+  }
+
+  get addedAt(): BigInt {
+    let value = this.get("addedAt");
+    return value!.toBigInt();
+  }
+
+  set addedAt(value: BigInt) {
+    this.set("addedAt", Value.fromBigInt(value));
+  }
+
+  get energiesBoughtByDate(): Array<string> | null {
+    let value = this.get("energiesBoughtByDate");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set energiesBoughtByDate(value: Array<string> | null) {
+    if (!value) {
+      this.unset("energiesBoughtByDate");
+    } else {
+      this.set(
+        "energiesBoughtByDate",
+        Value.fromStringArray(<Array<string>>value)
+      );
+    }
+  }
+
+  get distributor(): string | null {
+    let value = this.get("distributor");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set distributor(value: string | null) {
+    if (!value) {
+      this.unset("distributor");
+    } else {
+      this.set("distributor", Value.fromString(<string>value));
+    }
+  }
+
+  get payments(): Array<string> | null {
+    let value = this.get("payments");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set payments(value: Array<string> | null) {
+    if (!value) {
+      this.unset("payments");
+    } else {
+      this.set("payments", Value.fromStringArray(<Array<string>>value));
     }
   }
 }
@@ -603,5 +823,99 @@ export class DailyEnergy extends Entity {
 
   set actionType(value: string) {
     this.set("actionType", Value.fromString(value));
+  }
+}
+
+export class ConsumerPayment extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save ConsumerPayment entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type ConsumerPayment must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("ConsumerPayment", id.toString(), this);
+    }
+  }
+
+  static load(id: string): ConsumerPayment | null {
+    return changetype<ConsumerPayment | null>(store.get("ConsumerPayment", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get amountPaid(): BigInt | null {
+    let value = this.get("amountPaid");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set amountPaid(value: BigInt | null) {
+    if (!value) {
+      this.unset("amountPaid");
+    } else {
+      this.set("amountPaid", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get startTime(): BigInt {
+    let value = this.get("startTime");
+    return value!.toBigInt();
+  }
+
+  set startTime(value: BigInt) {
+    this.set("startTime", Value.fromBigInt(value));
+  }
+
+  get endTime(): BigInt {
+    let value = this.get("endTime");
+    return value!.toBigInt();
+  }
+
+  set endTime(value: BigInt) {
+    this.set("endTime", Value.fromBigInt(value));
+  }
+
+  get unitsConsumed(): BigInt {
+    let value = this.get("unitsConsumed");
+    return value!.toBigInt();
+  }
+
+  set unitsConsumed(value: BigInt) {
+    this.set("unitsConsumed", Value.fromBigInt(value));
+  }
+
+  get consumer(): string {
+    let value = this.get("consumer");
+    return value!.toString();
+  }
+
+  set consumer(value: string) {
+    this.set("consumer", Value.fromString(value));
+  }
+
+  get date(): string {
+    let value = this.get("date");
+    return value!.toString();
+  }
+
+  set date(value: string) {
+    this.set("date", Value.fromString(value));
   }
 }

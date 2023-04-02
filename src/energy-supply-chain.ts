@@ -1,4 +1,5 @@
-import { Powerplant, DailyEnergy, Substation,Distributor } from "./../generated/schema";
+import { ConsumerCancelledElectricity } from './../generated/EnergySupplyChain/EnergySupplyChain';
+import { Powerplant, DailyEnergy, Substation,Distributor,Consumer,ConsumerPayment } from "./../generated/schema";
 import { BigInt, log } from "@graphprotocol/graph-ts";
 import {
   EnergySupplyChain,
@@ -8,7 +9,7 @@ import {
   EnergyBoughtBySubstation,
   PowerPlantAdded,
   SubstationAdded,
-  DistributorConnectedToSubstation,SubstationConnectedToPowerPlant
+  DistributorConnectedToSubstation,SubstationConnectedToPowerPlant,ConsumerAdded,ConsumerConnectedToDistributor,ElectricityPaidByConsumer,UpdateUnitsConsumedRan
 } from "../generated/EnergySupplyChain/EnergySupplyChain";
 
 export function handleDistributorAdded(event: DistributorAdded): void {
@@ -27,6 +28,8 @@ export function handleDistributorAdded(event: DistributorAdded): void {
   entity.energyAvailableToBuy = event.params.energyAvailableToBuy;
   entity.number = distributorTicker.toI32();
   entity.addedAt = event.block.timestamp;
+  entity.isElectricitySupply = event.params.energyAvailableToBuy.toI64() ? true:false;
+  entity.toShowLessEnergyWarning = false;
   entity.save();
 }
 
@@ -109,6 +112,7 @@ export function handleEnergyBoughtByDistributor(
    if(distributor){
     distributor.totalEnergyBought = distributor.totalEnergyBought.plus(energyBought)
     distributor.energyAvailableToBuy = distributor.energyAvailableToBuy.plus(energyBought)
+    distributor.isElectricitySupply=true;
     let energiesBought = distributor.energiesBoughtByDate
     if (!energiesBought) {
       energiesBought = new Array<string>();
@@ -362,4 +366,249 @@ export function handleDistributorConnectedToSubstation(
     }
     distributor.save()
   }
+}
+
+export function handleConsumerAdded(
+  event: ConsumerAdded
+): void {
+  let creator = event.params.owner;
+  let consumerTicker = event.params.consumerId;
+  let contract = EnergySupplyChain.bind(event.address);
+  log.info("Consumer Ticker : {}",[consumerTicker.toString()])
+  let consumerFromContract = contract.getConsumerById(consumerTicker);
+  let entity = new Consumer(`Consumer-${consumerTicker}`);
+  entity.name = consumerFromContract.name;
+  entity.number = consumerTicker.toI32();
+  entity.owner = creator;
+  entity.totalEnergyBought = consumerFromContract.totalEnergyConsumed;
+  entity.isElectricitySupply=consumerFromContract.isElectricitySupply;
+  entity.payableAmountForElectricity = consumerFromContract.payableAmountForEnergy;
+  entity.startCycleTime = consumerFromContract.startCycleTime;
+  entity.endCycleTime=consumerFromContract.endCycleTime;
+  entity.isLastElectricityBillPaid = consumerFromContract.isLastElectricityBillPaid;
+  entity.energyConsumedIncurrentCycle = consumerFromContract.energyConsumedInCurrentCycle;
+  entity.addedAt = event.block.timestamp;
+  entity.totalEnergyBought = consumerFromContract.totalEnergyConsumed;
+  entity.save();
+}
+
+export function  handleConsumerConnectedToDistributor(
+  event: ConsumerConnectedToDistributor
+): void {
+  const consumerId = event.params.consumerId;
+  const distributorId = event.params.distributorId
+  const prevdistributorId = event.params.prevDistributorId
+  const consumer = Consumer.load(`Consumer-${consumerId}`)
+  if(consumer){
+    // update the disttributor connected to consumer to a new one
+    consumer.distributor = `Distributor-${distributorId}`
+    consumer.startCycleTime=event.block.timestamp
+    consumer.isElectricitySupply=true;
+    //TODO: uncomment this later after testing
+    consumer.endCycleTime = event.block.timestamp
+    // consumer.endCycleTime=event.block.timestamp+30
+    // now we check if there already exists a previous substation connected to distributor -> if yes remove the distributor from that substation
+    const prevDistributor = Distributor.load(`Distributor-${prevdistributorId}`)
+    if(prevDistributor){
+      const prevDistributorConsumers = prevDistributor.consumers
+      if(prevDistributorConsumers){
+          const index = prevDistributorConsumers.indexOf(consumer.id)
+          prevDistributorConsumers.splice(index,1)
+          prevDistributor.consumers = prevDistributorConsumers
+          prevDistributor.save()   
+      }
+    }
+    const newDistributor = Distributor.load(`Distributor-${distributorId}`)
+    if(newDistributor){
+      let newConsumers = newDistributor.consumers
+      if(!newConsumers){
+        newConsumers = new Array<string>();
+      }
+      newConsumers.push(consumer.id)
+      newDistributor.consumers=newConsumers
+      newDistributor.save()
+    }
+    consumer.save()
+  }
+}
+
+
+export function handleUpdateUnitsConsumedRan(
+  event: UpdateUnitsConsumedRan
+): void {
+  const today = event.params.day;
+  const stringDate = new Date(today.toU64() * 86400 * 1000)
+    .toISOString()
+    .split("T")[0];
+  let contract = EnergySupplyChain.bind(event.address);
+  let distributorIdsArray = contract.getDistributors();
+  for (let i = 0; i < distributorIdsArray.length; i++) {
+    const distributorFromContract = contract.getDistributorById(
+      distributorIdsArray[i]
+    );
+    const dailyEnergyAmount =contract.distributorsDailyEnergySoldById(distributorIdsArray[i],event.params.day)
+    const distributor = Distributor.load(
+      `Distributor-${distributorIdsArray[i]}`
+    );
+    if (distributor) {
+      distributor.energyAvailableToBuy =
+        distributorFromContract.energyAvailable;
+      distributor.totalEnergySold = distributorFromContract.totalEnergySold;
+      distributor.isElectricitySupply = distributorFromContract.isEnergySupply;
+      distributor.toShowLessEnergyWarning = distributorFromContract.isLessEnergyWarning;
+      let dailyEnergySold = DailyEnergy.load(
+        `Distributor-${distributorIdsArray[i]}-${stringDate}-Sold`
+      );
+      if (!dailyEnergySold) {
+        dailyEnergySold = new DailyEnergy(
+          `Distributor-${distributorIdsArray[i]}-${stringDate}-Sold`
+          );
+        }
+        dailyEnergySold.amount = dailyEnergyAmount
+        dailyEnergySold.timestamp = event.block.timestamp;
+        dailyEnergySold.date = stringDate;
+        dailyEnergySold.type = "Distributor";
+        dailyEnergySold.address = distributorFromContract.distributorAddress;
+        dailyEnergySold.userId = distributorIdsArray[i];
+        dailyEnergySold.actionType = "Sold";
+        dailyEnergySold.save();
+        let energiesSold = distributor.energiesSoldByDate;
+        if (!energiesSold) {
+          energiesSold = new Array<string>();
+        }
+        energiesSold.push(dailyEnergySold.id);
+        distributor.energiesSoldByDate = energiesSold;
+      
+      distributor.save();
+
+      for(let j=0;j<distributorFromContract.consumerIds.length;j++){
+        const consumerTicker = distributorFromContract.consumerIds[j];
+        const consumerFromContract = contract.getConsumerById(consumerTicker)
+        const consumer = Consumer.load(`Consumer-${consumerTicker}`)
+        if(consumer){
+          consumer.isLastElectricityBillPaid = consumerFromContract.isLastElectricityBillPaid
+          consumer.totalEnergyBought = consumerFromContract.totalEnergyConsumed
+          consumer.energyConsumedIncurrentCycle = consumerFromContract.energyConsumedInCurrentCycle
+
+          let dailyEnergyOfConsumer = DailyEnergy.load(`Consumer-${consumerTicker}-${stringDate}-Bought`)
+          if(!dailyEnergyOfConsumer){
+            dailyEnergyOfConsumer = new DailyEnergy(`Consumer-${consumerTicker}-${stringDate}-Bought`)
+            dailyEnergyOfConsumer.amount = BigInt.zero()
+          }
+         
+          dailyEnergyOfConsumer.amount =  dailyEnergyOfConsumer.amount.plus(BigInt.fromI32(1))
+          
+        // dailyEnergyOfConsumer.amount =dailyEnergyOfConsumer.amount.isZero() ?BigInt.fromI32(1):  dailyEnergyOfConsumer.amount.plus(BigInt.fromI32(1))
+        dailyEnergyOfConsumer.date = stringDate;
+        dailyEnergyOfConsumer.type = "Consumer";
+        dailyEnergyOfConsumer.address = consumerFromContract.consumerAddress;
+        dailyEnergyOfConsumer.userId = consumerTicker;
+        dailyEnergyOfConsumer.actionType = "Bought";
+        dailyEnergyOfConsumer.timestamp = event.block.timestamp
+        dailyEnergyOfConsumer.save();
+        let energiesBoughtConsumer = consumer.energiesBoughtByDate;
+        if (!energiesBoughtConsumer) {
+          energiesBoughtConsumer = new Array<string>();
+        }
+        energiesBoughtConsumer.push(dailyEnergyOfConsumer.id);
+        consumer.energiesBoughtByDate = energiesBoughtConsumer;
+      
+      consumer.save();
+
+        }
+      }
+    }
+
+    
+  }
+}
+
+export function handleElectricityPaidByConsumer(
+  event: ElectricityPaidByConsumer
+): void {
+  const consumerId = event.params.consumerId
+  const energyConsumed = event.params.energyConsumed
+  const startTime = event.params.startTime
+  const endTime = event.params.endTime
+  const stringDate = new Date(event.block.timestamp.toU64() * 86400 * 1000)
+.toISOString()
+.split("T")[0];
+
+  const consumer = Consumer.load(`Consumer-${consumerId}`)
+  if(consumer){
+    consumer.startCycleTime = event.block.timestamp
+    consumer.endCycleTime = event.block.timestamp
+    // TODO:uncomment this later
+    // consumer.endCycleTime = event.block.timestamp + 30 days;
+    consumer.energyConsumedIncurrentCycle=BigInt.zero();
+    consumer.isElectricitySupply=true;
+    consumer.isLastElectricityBillPaid=true;
+
+    const consumerPayment = new ConsumerPayment(`Consumer-${consumerId}-${event.block.timestamp}`)
+    consumerPayment.startTime = startTime;
+    consumerPayment.endTime=endTime;
+    consumerPayment.unitsConsumed=energyConsumed
+    consumerPayment.consumer = consumer.id;
+    consumerPayment.date = stringDate;
+    consumerPayment.save()
+
+    let consumerPayments = consumer.payments
+    if(!consumerPayments){
+      consumerPayments = new Array<string>()
+    }
+    consumerPayments.push(consumerPayment.id)
+    consumer.payments=consumerPayments
+    consumer.save()
+  }
+}
+
+export function handleConsumerCancelledElectricity(event:ConsumerCancelledElectricity):void{
+const consumerTicker  = event.params.consumerTicker
+const prevDistributorTicker = event.params.distributorTicker;
+const unitsConsumed = event.params.energyConsumed
+const startTime = event.params.startTime
+const today = event.params.today
+const stringDate = new Date(today.toU64() * 86400 * 1000)
+.toISOString()
+.split("T")[0];
+
+const consumer = Consumer.load(`Consumer-${consumerTicker}`)
+
+if(consumer){
+  let payment =new  ConsumerPayment(`Consumer-${consumerTicker}-${event.block.timestamp}`)
+  payment.startTime = startTime;
+  payment.endTime=event.block.timestamp;
+  payment.unitsConsumed=unitsConsumed
+  payment.consumer = consumer.id;
+  payment.date = stringDate;
+  payment.save()
+
+
+  consumer.distributor=null;
+  consumer.energyConsumedIncurrentCycle=BigInt.zero();
+  consumer.startCycleTime=BigInt.zero();
+  consumer.endCycleTime=BigInt.zero();
+  consumer.isElectricitySupply=false;
+  consumer.isLastElectricityBillPaid=true;
+  let consumerPayments = consumer.payments;
+  if(!consumerPayments){
+      consumerPayments = new Array<string>()
+  }
+  consumerPayments.push(payment.id)
+  consumer.payments = consumerPayments
+  consumer.save()
+}
+
+// remove consumer from distributor entity
+let distributor = Distributor.load(`Distributor-${prevDistributorTicker}`)
+if(distributor){
+  const prevDistributorConsumers = distributor.consumers
+  if(prevDistributorConsumers){
+      const index = prevDistributorConsumers.indexOf(`Consumer-${consumerTicker}`)
+      prevDistributorConsumers.splice(index,1)
+      distributor.consumers = prevDistributorConsumers
+      distributor.save()   
+  }
+}
+
 }
