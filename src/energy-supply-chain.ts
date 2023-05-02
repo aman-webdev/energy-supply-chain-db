@@ -30,6 +30,7 @@ export function handleDistributorAdded(event: DistributorAdded): void {
   entity.addedAt = event.block.timestamp;
   entity.isElectricitySupply = event.params.energyAvailableToBuy.toI64() ? true:false;
   entity.toShowLessEnergyWarning = false;
+  entity.isConnectedToSubstation=false;
   entity.save();
 }
 
@@ -294,6 +295,7 @@ export function handleSubstationAdded(event: SubstationAdded): void {
   entity.energyAvailableToBuy = event.params.energyAvailableToBuy;
   entity.number = substationTicker.toI32();
   entity.addedAt = event.block.timestamp;
+  entity.isConnectedToPowerplant=false;
   entity.save();
 }
 
@@ -306,6 +308,7 @@ export function handleSubstationConnectedToPowerPlant(
   const substation = Substation.load(`Substation-${substationId}`);
   if (substation) {
     substation.powerplant = `Powerplant-${powerplantId}`;
+    substation.isConnectedToPowerplant=true;
     // means substation changed the power plant to another power plant
     if (prevPowerplantId.toI32() !== 0) {
       const prevPlant = Powerplant.load(`Powerplant-${prevPowerplantId}`);
@@ -343,6 +346,7 @@ export function handleDistributorConnectedToSubstation(
   if(distributor){
     // update the substation connected to distributor to a new one
     distributor.substation = `Substation-${substationId}`
+    distributor.isConnectedToSubstation=true;
     // now we check if there already exists a previous substation connected to distributor -> if yes remove the distributor from that substation
     const prevSubstation = Substation.load(`Substation-${prevSubstationId}`)
     if(prevSubstation){
@@ -389,6 +393,7 @@ export function handleConsumerAdded(
   entity.energyConsumedIncurrentCycle = consumerFromContract.energyConsumedInCurrentCycle;
   entity.addedAt = event.block.timestamp;
   entity.totalEnergyBought = consumerFromContract.totalEnergyConsumed;
+  entity.isConnectedToDistributor=false;
   entity.save();
 }
 
@@ -402,6 +407,7 @@ export function  handleConsumerConnectedToDistributor(
   if(consumer){
     // update the disttributor connected to consumer to a new one
     consumer.distributor = `Distributor-${distributorId}`
+    consumer.isConnectedToDistributor=true;
     consumer.startCycleTime=event.block.timestamp
     consumer.isElectricitySupply=true;
     //TODO: uncomment this later after testing
@@ -489,14 +495,14 @@ export function handleUpdateUnitsConsumedRan(
           consumer.isLastElectricityBillPaid = consumerFromContract.isLastElectricityBillPaid
           consumer.totalEnergyBought = consumerFromContract.totalEnergyConsumed
           consumer.energyConsumedIncurrentCycle = consumerFromContract.energyConsumedInCurrentCycle
-
+          consumer.isElectricitySupply = consumerFromContract.isElectricitySupply
           let dailyEnergyOfConsumer = DailyEnergy.load(`Consumer-${consumerTicker}-${stringDate}-Bought`)
           if(!dailyEnergyOfConsumer){
             dailyEnergyOfConsumer = new DailyEnergy(`Consumer-${consumerTicker}-${stringDate}-Bought`)
             dailyEnergyOfConsumer.amount = BigInt.zero()
           }
          
-          dailyEnergyOfConsumer.amount =  dailyEnergyOfConsumer.amount.plus(BigInt.fromI32(1))
+          dailyEnergyOfConsumer.amount = contract.getConsumerEnergyBoguhtByDay(consumerTicker,today)
           
         // dailyEnergyOfConsumer.amount =dailyEnergyOfConsumer.amount.isZero() ?BigInt.fromI32(1):  dailyEnergyOfConsumer.amount.plus(BigInt.fromI32(1))
         dailyEnergyOfConsumer.date = stringDate;
@@ -526,16 +532,19 @@ export function handleUpdateUnitsConsumedRan(
 export function handleElectricityPaidByConsumer(
   event: ElectricityPaidByConsumer
 ): void {
+  log.info("in functions_____________",[])
   const consumerId = event.params.consumerId
   const energyConsumed = event.params.energyConsumed
   const startTime = event.params.startTime
   const endTime = event.params.endTime
-  const stringDate = new Date(event.block.timestamp.toU64() * 86400 * 1000)
+  const stringDate = new Date(event.block.timestamp.toU64() * 86400)
 .toISOString()
 .split("T")[0];
+log.info("String DATE_____________:{}",[stringDate])
 
   const consumer = Consumer.load(`Consumer-${consumerId}`)
   if(consumer){
+    log.info("FIRST ______________",[])
     consumer.startCycleTime = event.block.timestamp
     consumer.endCycleTime = event.block.timestamp
     // TODO:uncomment this later
@@ -543,8 +552,11 @@ export function handleElectricityPaidByConsumer(
     consumer.energyConsumedIncurrentCycle=BigInt.zero();
     consumer.isElectricitySupply=true;
     consumer.isLastElectricityBillPaid=true;
+    log.info("SECOND ______________",[])
 
     const consumerPayment = new ConsumerPayment(`Consumer-${consumerId}-${event.block.timestamp}`)
+    log.info("THIRED ______________",[])
+
     consumerPayment.startTime = startTime;
     consumerPayment.endTime=endTime;
     consumerPayment.unitsConsumed=energyConsumed
@@ -584,7 +596,8 @@ if(consumer){
   payment.save()
 
 
-  consumer.distributor=null;
+  consumer.distributor='';
+  consumer.isConnectedToDistributor = false;
   consumer.energyConsumedIncurrentCycle=BigInt.zero();
   consumer.startCycleTime=BigInt.zero();
   consumer.endCycleTime=BigInt.zero();

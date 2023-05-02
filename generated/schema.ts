@@ -348,6 +348,15 @@ export class Substation extends Entity {
       this.set("powerplant", Value.fromString(<string>value));
     }
   }
+
+  get isConnectedToPowerplant(): boolean {
+    let value = this.get("isConnectedToPowerplant");
+    return value!.toBoolean();
+  }
+
+  set isConnectedToPowerplant(value: boolean) {
+    this.set("isConnectedToPowerplant", Value.fromBoolean(value));
+  }
 }
 
 export class Distributor extends Entity {
@@ -544,6 +553,15 @@ export class Distributor extends Entity {
   set toShowLessEnergyWarning(value: boolean) {
     this.set("toShowLessEnergyWarning", Value.fromBoolean(value));
   }
+
+  get isConnectedToSubstation(): boolean {
+    let value = this.get("isConnectedToSubstation");
+    return value!.toBoolean();
+  }
+
+  set isConnectedToSubstation(value: boolean) {
+    this.set("isConnectedToSubstation", Value.fromBoolean(value));
+  }
 }
 
 export class Consumer extends Entity {
@@ -728,6 +746,15 @@ export class Consumer extends Entity {
     } else {
       this.set("payments", Value.fromStringArray(<Array<string>>value));
     }
+  }
+
+  get isConnectedToDistributor(): boolean {
+    let value = this.get("isConnectedToDistributor");
+    return value!.toBoolean();
+  }
+
+  set isConnectedToDistributor(value: boolean) {
+    this.set("isConnectedToDistributor", Value.fromBoolean(value));
   }
 }
 

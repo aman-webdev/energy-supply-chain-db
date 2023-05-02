@@ -41,6 +41,7 @@ type Substation @entity{
   energiesSoldByDate:[DailyEnergy!]
   energiesBoughtByDate:[DailyEnergy!]
   powerplant:Powerplant
+  isConnectedToPowerplant:Boolean!
 }
 
 type Distributor @entity{
@@ -59,6 +60,7 @@ type Distributor @entity{
   substation:Substation
   isElectricitySupply:Boolean!
   toShowLessEnergyWarning:Boolean!
+  isConnectedToSubstation:Boolean!
 }
 
 type Consumer @entity{
@@ -77,6 +79,7 @@ type Consumer @entity{
   energiesBoughtByDate:[DailyEnergy!]
   distributor:Distributor
   payments:[ConsumerPayment!]
+  isConnectedToDistributor:Boolean!
 }
 
 type DailyEnergy @entity{

@@ -1220,6 +1220,38 @@ export class EnergySupplyChain extends ethereum.SmartContract {
     );
   }
 
+  getConsumerEnergyBoguhtByDay(_consumerIndex: BigInt, _day: BigInt): BigInt {
+    let result = super.call(
+      "getConsumerEnergyBoguhtByDay",
+      "getConsumerEnergyBoguhtByDay(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_consumerIndex),
+        ethereum.Value.fromUnsignedBigInt(_day)
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getConsumerEnergyBoguhtByDay(
+    _consumerIndex: BigInt,
+    _day: BigInt
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getConsumerEnergyBoguhtByDay",
+      "getConsumerEnergyBoguhtByDay(uint256,uint256):(uint256)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_consumerIndex),
+        ethereum.Value.fromUnsignedBigInt(_day)
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   getConsumersFromADistributor(_distributorIndex: BigInt): Array<BigInt> {
     let result = super.call(
       "getConsumersFromADistributor",
